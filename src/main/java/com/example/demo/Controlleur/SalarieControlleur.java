@@ -9,8 +9,12 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Exception.ResourceNotFoundException;
@@ -32,6 +37,8 @@ import com.example.demo.entities.Salarie;
 public class SalarieControlleur {
 	@Autowired
 	private SalarieRepository salarieRepository;
+	//public static  String email;
+	
 	@GetMapping("/sal")
 	  public List<Salarie> getAllSalaries() {
 	    System.out.println("Get all Salaries...");
@@ -41,7 +48,7 @@ public class SalarieControlleur {
 	 
 	    return Salaries;
 	  }
-	
+
 	@GetMapping("/sal/{id}")
 	public ResponseEntity<Salarie> getSalarieById(@PathVariable(value = "id") Long SalarieId)
 			throws ResourceNotFoundException {
@@ -49,12 +56,17 @@ public class SalarieControlleur {
 				.orElseThrow(() -> new ResourceNotFoundException("Salarie not found for this id :: " + SalarieId));
 		return ResponseEntity.ok().body(Salarie);
 	}
+	
+		
+
+	 @PreAuthorize(" hasRole('RH')")
 
 	@PostMapping("/sal")
 	public Salarie createSalarie(@Valid @RequestBody Salarie Salarie) {
 		return salarieRepository.save(Salarie);
 	}
 	
+	 @PreAuthorize("hasRole('RH')")
 
 	@DeleteMapping("/sal/{id}")
 	public Map<String, Boolean> deleteSalarie(@PathVariable(value = "id") Long SalarieId)
@@ -68,7 +80,8 @@ public class SalarieControlleur {
 		return response;
 	}
 	  
-	 
+	 @PreAuthorize("hasRole('RH')")
+
 	  @DeleteMapping("/sal/delete")
 	  public ResponseEntity<String> deleteAllSalaries() {
 	    System.out.println("Delete All Salaries...");
@@ -78,7 +91,7 @@ public class SalarieControlleur {
 	    return new ResponseEntity<>("All Salaries have been deleted!", HttpStatus.OK);
 	  }
 	 
-	
+	 @PreAuthorize(" hasRole('RH')")
 
 	  @PutMapping("/sal/{id}")
 	  public ResponseEntity<Salarie> updateSalarie(@PathVariable("id") long id, @RequestBody Salarie Salarie) {
@@ -96,8 +109,7 @@ public class SalarieControlleur {
 	    	salarie.setMail(Salarie.getMail());
 	    	salarie.setNum_tel(Salarie.getNum_tel());
 	    	salarie.setNom_responsable(Salarie.getNom_responsable());
-	    	salarie.setPassword(Salarie.getPassword());
-	    	salarie.setUsername(Salarie.getUsername());
+	  
 	    	salarie.setSolde_conge(Salarie.getSolde_conge());
 	    	
 	    	

@@ -26,8 +26,7 @@ public class Salarie  {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	private String nom;
-	private String username;
-	private String password;
+	
 	private String prenom;
 	private float solde_conge;
 	private Date date_entree;
@@ -36,6 +35,13 @@ public class Salarie  {
 	private String num_tel;
 	private String nom_responsable;
 	private String groupe;
+	private String username;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
 	@OneToMany(mappedBy="salarie",cascade=CascadeType.ALL)
 	@JsonIgnore
 	private List <Conge>conge;
@@ -51,18 +57,8 @@ public class Salarie  {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
+	
+	
 	public String getPrenom() {
 		return prenom;
 	}
@@ -117,14 +113,13 @@ public class Salarie  {
 	public void setConge(List<Conge> conge) {
 		this.conge = conge;
 	}
-	public Salarie(Long id, String nom, String username, String password, String prenom, float solde_conge,
+	public Salarie(Long id, String nom,  String prenom, float solde_conge,String username,
 			Date date_entree, String grade, String mail, String num_tel, String nom_responsable, String groupe,
 			List<Conge> conge) {
 		super();
 		this.id = id;
 		this.nom = nom;
-		this.username = username;
-		this.password = password;
+		this.username=username;
 		this.prenom = prenom;
 		this.solde_conge = solde_conge;
 		this.date_entree = date_entree;
@@ -141,7 +136,7 @@ public class Salarie  {
 	}
 	@Override
 	public String toString() {
-		return "Salarie [id=" + id + ", nom=" + nom + ", username=" + username + ", password=" + password + ", prenom="
+		return "Salarie [id=" + id + ", nom=" + nom + ",  prenom="
 				+ prenom + ", solde_congé=" + solde_conge + ", date_entree=" + date_entree + ", grade=" + grade
 				+ ", mail=" + mail + ", num_tel=" + num_tel + ", nom_responsable=" + nom_responsable + ", groupe="
 				+ groupe + ", conge=" + conge + "]";
