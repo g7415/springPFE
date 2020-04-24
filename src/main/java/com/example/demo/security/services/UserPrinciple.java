@@ -1,7 +1,9 @@
 package com.example.demo.security.services;
 
-import com.example.demo.entities.User;
+import com.example.demo.entities.Salarie;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,44 +13,45 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+
 public class UserPrinciple implements UserDetails {
  private static final long serialVersionUID = 1L;
 
  private Long id;
 
-   private String name;
+   private String nom;
 
    private String username;
 
-   private String email;
+   private String mail;
 
    @JsonIgnore
    private String password;
 
    private Collection<? extends GrantedAuthority> authorities;
 
-   public UserPrinciple(Long id, String name, 
-             String username, String email, String password, 
+   public UserPrinciple(Long id, String nom, 
+             String username, String mail, String password, 
              Collection<? extends GrantedAuthority> authorities) {
        this.id = id;
-       this.name = name;
+       this.nom = nom;
        this.username = username;
-       this.email = email;
+       this.mail = mail;
        this.password = password;
        this.authorities = authorities;
    }
 
-   public static UserPrinciple build(User user) {
-       List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
+   public static UserPrinciple build(Salarie salarie) {
+       List<GrantedAuthority> authorities = salarie.getRoles().stream().map(role ->
                new SimpleGrantedAuthority(role.getName().name())
        ).collect(Collectors.toList());
 
        return new UserPrinciple(
-               user.getId(),
-               user.getName(),
-               user.getUsername(),
-               user.getEmail(),
-               user.getPassword(),
+       		salarie.getId(),
+       		salarie.getNom(),
+       		salarie.getUsername(),
+       		salarie.getMail(),
+       		salarie.getPassword(),
                authorities
        );
    }
@@ -57,12 +60,12 @@ public class UserPrinciple implements UserDetails {
        return id;
    }
 
-   public String getName() {
-       return name;
+   public String getNom() {
+       return nom;
    }
 
-   public String getEmail() {
-       return email;
+   public String getMail() {
+       return mail;
    }
 
    @Override
@@ -105,7 +108,7 @@ public class UserPrinciple implements UserDetails {
        if (this == o) return true;
        if (o == null || getClass() != o.getClass()) return false;
        
-       UserPrinciple user = (UserPrinciple) o;
-       return Objects.equals(id, user.id);
+       UserPrinciple salarie = (UserPrinciple) o;
+       return Objects.equals(id, salarie.id);
    }
 }
