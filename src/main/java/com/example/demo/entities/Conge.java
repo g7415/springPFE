@@ -21,6 +21,7 @@ public class Conge {
 	private Date date_debut;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date date_fin;
+	private Long duree;
 	private String statut;
 	@ManyToOne
 	@JoinColumn
@@ -116,6 +117,42 @@ public class Conge {
 		this.date_fin = date_fin;
 		this.statut = statut;
 		this.typeconge = typeconge;
+	}
+
+	public Conge(Date date_debut, Date date_fin, Long duree, String statut, TypeConge typeconge, Salarie salarie) {
+		super();
+		this.date_debut = date_debut;
+		this.date_fin = date_fin;
+		this.duree = duree;
+		this.statut = statut;
+		this.typeconge = typeconge;
+		this.salarie = salarie;
+	}
+
+	public Conge(Long num, Date date_debut, Date date_fin, Long duree, String statut, TypeConge typeconge,
+			Salarie salarie) {
+		super();
+		this.num = num;
+		this.date_debut = date_debut;
+		this.date_fin = date_fin;
+		this.duree = duree;
+		this.statut = statut;
+		this.typeconge = typeconge;
+		this.salarie = salarie;
+	}
+
+	public Long getDuree() {
+		return duree;
+	}
+
+	public void setDuree(Long duree) {
+		this.duree = duree;
+	}
+
+	@Override
+	public String toString() {
+		return "Conge [num=" + num + ", date_debut=" + date_debut + ", date_fin=" + date_fin + ", duree=" + duree
+				+ ", statut=" + statut + ", typeconge=" + typeconge + ", salarie=" + salarie + "]";
 	}
 
 	

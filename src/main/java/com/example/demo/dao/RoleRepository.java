@@ -12,4 +12,6 @@ import com.example.demo.entities.RoleName;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByName(RoleName roleName);
+
+	Role getOneByName(RoleName roleName);
 }

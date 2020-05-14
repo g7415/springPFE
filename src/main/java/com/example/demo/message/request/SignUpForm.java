@@ -26,8 +26,17 @@ public class SignUpForm {
 	private String num_tel;
 	private String nom_responsable;
 	private String groupe;
+	private String manager;
 	
-   public String getPrenom() {
+   public String getManager() {
+		return manager;
+	}
+
+	public void setManager(String manager) {
+		this.manager = manager;
+	}
+
+public String getPrenom() {
 		return prenom;
 	}
 

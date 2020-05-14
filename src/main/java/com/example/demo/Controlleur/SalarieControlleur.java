@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,20 +39,22 @@ import com.example.demo.dao.SalarieRepository;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.RoleName;
 import com.example.demo.entities.Salarie;
+import com.example.demo.entities.TypeConge;
 import com.example.demo.message.request.SignUpForm;
 import com.example.demo.message.response.ResponseMessage;
 import com.example.demo.security.jwt.JwtProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api")
 public class SalarieControlleur {
-	@Autowired
+	  @Autowired
 	  AuthenticationManager authenticationManager;
-	 
-	  
-	 
+ 
 	  @Autowired
 	  RoleRepository roleRepository;
 	 
@@ -60,36 +63,53 @@ public class SalarieControlleur {
 	 
 	  @Autowired
 	  JwtProvider jwtProvider;
-	@Autowired
-	SalarieRepository salarieRepository;
-	
-	
+	  @Autowired
+	  SalarieRepository salarieRepository;
+	  
+//		@GetMapping("/manager")
+//		  public  List<Salarie> getAllManager() {
+//		    System.out.println("Get all manager...");
+//		    List<Salarie>salaries= salarieRepository.findAll();
+//			for(Salarie salarie : salaries)
+//			{
+//				Optional<Role> managerRole=roleRepository.findByName(RoleName.ROLE_MANAGER);
+//		    if(salarie.getRoles().equals(managerRole)) 
+//		    	 System.out.println("Get all manager..."+ salarie.getUsername());
+//		    }
+//		    return salaries;
+//		}
+		
+	  @GetMapping("/manager")
+		public List<Salarie> getAllManager() {
+			
+			List<Salarie> salaries =salarieRepository.getManagerList(RoleName.ROLE_MANAGER);
+			return salaries;
+		}
+	  
+	  
 	@GetMapping("/sal")
 	  public List<Salarie> getAllSalaries() {
 	    System.out.println("Get all Salaries...");
-	 
 	    List<Salarie> Salaries = new ArrayList<>();
 	    salarieRepository.findAll().forEach(Salaries::add);
-	 
 	    return Salaries;
 	  }
 	
 	@GetMapping("/roles")
 	  public List<Role> getAllRoles() {
 	    System.out.println("Get all Salaries...");
-	 
 	    List<Role> Roles = new ArrayList<>();
 	    roleRepository.findAll().forEach(Roles::add);
-	 
 	    return Roles;
 	  }
-
+	
+	
 
 	@GetMapping("/sal/{id}")
 	public ResponseEntity<Salarie> getSalarieById(@PathVariable(value = "id") Long SalarieId)
 			throws ResourceNotFoundException {
 		Salarie Salarie = salarieRepository.findById(SalarieId)
-				.orElseThrow(() -> new ResourceNotFoundException("Salarie not found for this id :: " + SalarieId));
+		.orElseThrow(() -> new ResourceNotFoundException("Salarie not found for this id :: " + SalarieId));
 		return ResponseEntity.ok().body(Salarie);
 	}
 	
@@ -97,12 +117,11 @@ public class SalarieControlleur {
 	public ResponseEntity<Salarie> getSalarieByUsername(@PathVariable(value = "username") String username)
 			throws ResourceNotFoundException {
 		Salarie Salarie = salarieRepository.findByUsername(username)
-				.orElseThrow(() -> new ResourceNotFoundException("Salarie not found for this id :: " + username));
+		.orElseThrow(() -> new ResourceNotFoundException("Salarie not found for this id :: " + username));
 		return ResponseEntity.ok().body(Salarie);
 	}
 
-	 @PreAuthorize(" hasRole('RH')")
-
+//	 @PreAuthorize(" hasRole('RH')")
 //	@PostMapping("/sal")
 //	public Salarie createSalarie(@Valid @RequestBody Salarie Salarie) {
 //		return salarieRepository.save(Salarie);
@@ -110,21 +129,21 @@ public class SalarieControlleur {
 	
 
 	 @PostMapping("/sal")
-	 public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+	 public ResponseEntity<Salarie> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+		 
+	
 	   if (salarieRepository.existsByUsername(signUpRequest.getUsername())) {
-	     return new ResponseEntity<>(new ResponseMessage("Fail -> Username is already taken!"),
-	         HttpStatus.BAD_REQUEST);
+			throw new RuntimeException("Fail -> Username is already taken!");
 	   }
 
 	   if (salarieRepository.existsByMail(signUpRequest.getMail())) {
-	     return new ResponseEntity<>(new ResponseMessage("Fail -> Email is already in use!"),
-	         HttpStatus.BAD_REQUEST);
+		   throw new RuntimeException("Fail -> Email is already in use!");  
 	   }
 
 	   // Creating user's account
 	   Salarie salarie = new Salarie(signUpRequest.getNom(),signUpRequest.getPrenom(),signUpRequest.getSolde_conge(),  signUpRequest.getDate_entree(),
-	   		signUpRequest.getGrade(),  signUpRequest.getMail(),  signUpRequest.getNum_tel(),  signUpRequest.getNom_responsable(),  signUpRequest.getGroupe(),
-				 signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()));
+	   signUpRequest.getGrade(),  signUpRequest.getMail(),  signUpRequest.getNum_tel(),  signUpRequest.getNom_responsable(),  signUpRequest.getGroupe(),
+	   signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()));
 	  // System.out.println(signUpRequest.getRole());
 
 	   Set<String> strRoles = signUpRequest.getRoles();
@@ -152,22 +171,34 @@ public class SalarieControlleur {
 	   });
 
 	   salarie.setRoles(roles);
-	  
 	   
-	   EmailSender emailSend = new EmailSender();
-	   try {
-		emailSend.sendMail(salarie);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.print("erreur");
-		}
-	   salarieRepository.save(salarie);
-	   return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.OK);
+	  Optional<Salarie> usrData = salarieRepository.findByUsername(signUpRequest.getManager());
+      Role managerRole = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
+   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+
+       if(usrData.isPresent() ) {
+
+       	if(usrData.get().getRoles().contains(managerRole) ) {
+    			salarie.setManager(usrData.get());
+       	}
+       else {
+       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
+       } 
+       }
+	   
+//	   EmailSender emailSend = new EmailSender();
+//	   try {
+//		emailSend.sendMail(salarie);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			System.out.print("erreur");
+//		}
+	
+	   return new ResponseEntity<>(salarieRepository.save(salarie), HttpStatus.OK);
 	 }
 	
-	 @PreAuthorize("hasRole('RH')")
-
+	@PreAuthorize("hasRole('RH')")
 	@DeleteMapping("/sal/{id}")
 	public Map<String, Boolean> deleteSalarie(@PathVariable(value = "id") Long SalarieId)
 			throws ResourceNotFoundException {
@@ -180,19 +211,28 @@ public class SalarieControlleur {
 		return response;
 	}
 	  
-	 @PreAuthorize("hasRole('RH')")
-
+	  @PreAuthorize("hasRole('RH')")
 	  @DeleteMapping("/sal/delete")
 	  public ResponseEntity<String> deleteAllSalaries() {
 	    System.out.println("Delete All Salaries...");
-	 
 	    salarieRepository.deleteAll();
 	 
 	    return new ResponseEntity<>("All Salaries have been deleted!", HttpStatus.OK);
 	  }
 	 
-	 @PreAuthorize(" hasRole('RH')")
-
+//	 @PutMapping("/salarie/{username}")
+//	 public ResponseEntity<Salarie> changePassword(@PathVariable("username") String username, @RequestBody Salarie salarie1){
+//		 Optional<Salarie> s = salarieRepository.findByUsername(username);		 
+//		    if (s.isPresent()) {
+//		    	Salarie salarie=new Salarie();
+//		    	salarie.setPassword(encoder.encode(salarie1.getPassword()));
+//		      return new ResponseEntity<>(salarieRepository.save(salarie), HttpStatus.OK);
+//		    } else {
+//		      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		    }
+//	 }
+	 
+//	 @PreAuthorize(" hasRole('RH')")
 	  @PutMapping("/sal/{id}")
 	  public ResponseEntity<Salarie> updateSalarie(@PathVariable("id") long id, @RequestBody SignUpForm salarie1) {
 	    System.out.println("Update Salarie with ID = " + id + "...");
@@ -200,9 +240,9 @@ public class SalarieControlleur {
 	    Optional<Salarie> CarteInfo = salarieRepository.findById(id);
 		 
 	    if (CarteInfo.isPresent()) {
-	    	//Salarie salarie = CarteInfo.get();
-	    	Salarie salarie=new Salarie();
-	    	salarie.setId(id);
+	    	Salarie salarie = CarteInfo.get();
+//	    	Salarie salarie=new Salarie();
+//	    	salarie.setId(id);
 	    	salarie.setNom(salarie1.getNom());
 	    	salarie.setPrenom(salarie1.getPrenom());
 	    	salarie.setGroupe(salarie1.getGroupe());
@@ -216,7 +256,21 @@ public class SalarieControlleur {
 //	    	salarie.setPassword(encoded);
 	    	salarie.setPassword(encoder.encode(salarie1.getPassword()));
 	    	salarie.setSolde_conge(salarie1.getSolde_conge());
-	    	//salarie.setRoles(salarie1.getRoles());
+	    
+	    	
+	    	 Optional<Salarie> usrData = salarieRepository.findByUsername(salarie1.getManager());
+	    	   	Role managerRole1 = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
+	    	   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+
+	    	       if(usrData.isPresent() ) {
+
+	    	       	if(usrData.get().getRoles().contains(managerRole1) ) {
+	    	    			salarie.setManager(usrData.get());
+	    	       	}
+	    	       }else {
+	    	       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
+	    	       }
+	    	
 	    	 Set<String> strRoles = salarie1.getRoles();
 	  	   Set<Role> roles = new HashSet<>();
 
@@ -242,21 +296,68 @@ public class SalarieControlleur {
 	  	   });
 
 	  	   salarie.setRoles(roles);
-	  	 
 	    	
-	  	  EmailSender emailSend = new EmailSender();
-		   try {
-			emailSend.sendMail(salarie);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//	  	  EmailSender emailSend = new EmailSender();
+//		   try {
+//			emailSend.sendMail(salarie);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	    	
-	  	 
-
 	      return new ResponseEntity<>(salarieRepository.save(salarie), HttpStatus.OK);
 	    } else {
 	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
 	  }
+	  
+	  
+	  @PutMapping("/resetPassword/{username}")
+	  public ResponseEntity<Salarie> reinitialiseMdp(@PathVariable("username") String username, @RequestBody Salarie salarie) {
+	    System.out.println("Update Conge with ID = " + username + "...");
+	 
+	    Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	Salarie typeconge = CarteInfo.get();
+	    	typeconge.setUsername(salarie.getUsername());
+	    	typeconge.setPassword(encoder.encode(salarie.getPassword()));
+	      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }
+	  @PutMapping("/changePassword/{username}")
+	  public ResponseEntity<Salarie> updatePassword(@PathVariable("username") String username, @RequestBody Salarie salarie) {
+	    System.out.println("Update Conge with ID = " + username + "...");
+	 
+	    Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	Salarie typeconge = CarteInfo.get();
+	    	typeconge.setPassword(encoder.encode(salarie.getPassword()));
+	      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }
+	  @PutMapping("/updateProfil/{id}")
+	  public ResponseEntity<Salarie> updateProfil(@PathVariable("id") Long id, @RequestBody Salarie salarie) {
+	    System.out.println("Update Conge with ID = " + id + "...");
+	 
+	    Optional<Salarie> CarteInfo = salarieRepository.findById(id);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	Salarie typeconge = CarteInfo.get();
+	    	typeconge.setNom(salarie.getNom());
+	    	typeconge.setPrenom(salarie.getPrenom());
+	    	typeconge.setMail(salarie.getMail());
+	    	typeconge.setNum_tel(salarie.getNum_tel());
+
+	      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }
+	  
 }

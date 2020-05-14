@@ -86,6 +86,7 @@
 //}
 package com.example.demo.Controlleur;
 
+import java.awt.Color;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,6 +104,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
+import com.example.demo.entities.Conge;
 import com.example.demo.entities.Salarie;
 
 
@@ -133,7 +135,8 @@ public class EmailSender {
 
  @RequestMapping("/getdetails")
  public @ResponseBody Salarie sendMail(@RequestBody Salarie salarie) throws Exception {
-
+	
+     
      MimeMessage message = sender.createMimeMessage();
      MimeMessageHelper helper = new MimeMessageHelper(message,
              MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
@@ -157,10 +160,64 @@ public class EmailSender {
          e.printStackTrace();
      }
      sender.send(message);
-
      return salarie;
 
  }
 
 
+ @RequestMapping("/EmaildemandeAccepter")
+ public  @ResponseBody Conge sendMail2(@RequestBody Conge conge) throws Exception {
+     MimeMessage message = sender.createMimeMessage();
+     MimeMessageHelper helper = new MimeMessageHelper(message,
+             MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+             StandardCharsets.UTF_8.name());
+
+     Map<String, Object> model = new HashMap<String, Object>();
+//     model.put("username",salarie.getUsername());
+//     model.put("password",salarie.getPassword());
+//     model.put("password",password);
+
+//     System.out.println(generatePassword(8));
+     Context context = new Context();
+     context.setVariables(model);
+     String html = templateEngine.process("email-accepterConge", context);
+
+     try {
+         helper.setTo(conge.getSalarie().getMail());
+         helper.setText(html,true);
+         helper.setSubject("Test Mail");
+     } catch (javax.mail.MessagingException e) {
+         e.printStackTrace();
+     }
+     sender.send(message);
+return conge;
+ }
+ @RequestMapping("/EmaildemandeRefuser")
+ public  @ResponseBody Conge sendMail3(@RequestBody Conge conge) throws Exception {
+     MimeMessage message = sender.createMimeMessage();
+     MimeMessageHelper helper = new MimeMessageHelper(message,
+             MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+             StandardCharsets.UTF_8.name());
+
+     Map<String, Object> model = new HashMap<String, Object>();
+//     model.put("username",salarie.getUsername());
+//     model.put("password",salarie.getPassword());
+//     model.put("password",password);
+
+//     System.out.println(generatePassword(8));
+     Context context = new Context();
+     context.setVariables(model);
+     String html = templateEngine.process("email-refuserConge", context);
+
+     try {
+         helper.setTo(conge.getSalarie().getMail());
+         helper.setText(html,true);
+         helper.setSubject("Test Mail");
+     } catch (javax.mail.MessagingException e) {
+         e.printStackTrace();
+     }
+     sender.send(message);
+return conge;
+ }
+ 
 }

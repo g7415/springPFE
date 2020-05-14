@@ -11,7 +11,6 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Exception.ResourceNotFoundException;
 import com.example.demo.dao.CongeRepository;
 import com.example.demo.entities.Conge;
+
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -33,6 +32,14 @@ import com.example.demo.entities.Conge;
 public class CongeControlleur {
 	@Autowired
 	private CongeRepository congeRepository;
+
+	  @GetMapping("/ConByManager/{id}")
+			public List<Conge> getListConByManager(@PathVariable("id") long id) {
+//				Long id = conge.getSalarie().getManager().getId();
+				List<Conge> conge1 =congeRepository.getCongeListByManager(id);
+				return conge1;
+			}
+	
 	@GetMapping("/con")
 	  public List<Conge> getAllConges() {
 	    System.out.println("Get all Conges...");
@@ -42,6 +49,19 @@ public class CongeControlleur {
 	 
 	    return Conges;
 	  }
+
+	  @GetMapping("/conid/{id}")
+	  public List<Conge> getCongeByIdSal(@PathVariable(value = "id") Long id)
+				throws ResourceNotFoundException {
+		  List<Conge> conges = congeRepository.getCongeByIdSal(id);
+		  return conges;
+			}
+	  @GetMapping("/conusername/{username}")
+	  public List<Conge> getCongeByIdSal(@PathVariable(value = "username") String username)
+				throws ResourceNotFoundException {
+		  List<Conge> conges = congeRepository.getCongeByUsernameSal(username);
+		  return conges;
+			}
 	
 	@GetMapping("/con/{num}")
 	public ResponseEntity<Conge> getCongeById(@PathVariable(value = "num") Long num)
@@ -52,8 +72,9 @@ public class CongeControlleur {
 	}
 	
 	@PostMapping("/con")
-	public Conge createConge(@Valid @RequestBody Conge Conge) {
-		return congeRepository.save(Conge);
+	public Conge createConge(@Valid @RequestBody Conge conge) {
+		System.out.print(conge);
+		return congeRepository.save(conge);
 	}
 	
 
@@ -82,24 +103,61 @@ public class CongeControlleur {
 	
 
 	  @PutMapping("/con/{num}")
-	  public ResponseEntity<Conge> updateConge(@PathVariable("num") long num, @RequestBody Conge Conge) {
+	  public ResponseEntity<Conge> updateConge(@PathVariable("num") long num, @RequestBody Conge conge1) {
 	    System.out.println("Update Conge with ID = " + num + "...");
 	 
 	    Optional<Conge> CarteInfo = congeRepository.findById(num);
 		 
 	    if (CarteInfo.isPresent()) {
 	    	Conge conge = CarteInfo.get();
-	    	conge.setDate_debut(conge.getDate_debut());
-	    	conge.setDate_fin(conge.getDate_fin());
-	    	conge.setStatut(conge.getStatut());
-	    	conge.setSalarie(conge.getSalarie());
-	    	conge.setTypeconge(conge.getTypeconge());
-	          
-	      
-	           
-	      return new ResponseEntity<>(congeRepository.save(Conge), HttpStatus.OK);
+	    	conge.setDate_debut(conge1.getDate_debut());
+	    	conge.setDate_fin(conge1.getDate_fin());
+	    	conge.setDuree(conge1.getDuree());
+	    	conge.setStatut(conge1.getStatut());
+	    	conge.setSalarie(conge1.getSalarie());
+	    	conge.setTypeconge(conge1.getTypeconge());
+	               
+	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
 	    } else {
 	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
 	  }
+	  
+	  
+	  @PutMapping("/conAccep/{num}")
+	  public ResponseEntity<Conge> accepterDemande(@PathVariable("num") long num,@RequestBody Conge conge1) {
+	    System.out.println("Update Conge with ID = " + num + "...");
+	 
+	    Optional<Conge> CarteInfo = congeRepository.findById(num);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	Conge conge = CarteInfo.get();
+	    	conge.setStatut("accepter");
+	    	     
+	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	    
+
+	  }  
+	  
+	  @PutMapping("/conRefuser/{num}")
+	  public ResponseEntity<Conge> refuserDemande(@PathVariable("num") long num,@RequestBody Conge conge1) {
+	    System.out.println("Update Conge with ID = " + num + "...");
+	 
+	    Optional<Conge> CarteInfo = congeRepository.findById(num);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	Conge conge = CarteInfo.get();
+	    	conge.setStatut("refuser");
+	    	     
+	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }   
+	  
+	  
+	  
 }

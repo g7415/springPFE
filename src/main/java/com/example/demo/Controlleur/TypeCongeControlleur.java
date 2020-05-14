@@ -56,6 +56,7 @@ public class TypeCongeControlleur {
 		return typecongeRepository.save(TypeConge);
 	}
 	
+  @PreAuthorize(" hasRole('RH')")
 
 	@DeleteMapping("/typecon/{id_type}")
 	public Map<String, Boolean> deleteConge(@PathVariable(value = "id_type") Long id_type)
@@ -69,7 +70,8 @@ public class TypeCongeControlleur {
 		return response;
 	}
 	  
-	 
+  @PreAuthorize(" hasRole('RH')")
+
 	  @DeleteMapping("/typecon/delete")
 	  public ResponseEntity<String> deleteAllConges() {
 	    System.out.println("Delete All Type Conge...");
@@ -80,6 +82,7 @@ public class TypeCongeControlleur {
 	  }
 	 
 	
+  @PreAuthorize(" hasRole('RH')")
 
 	  @PutMapping("/typecon/{id_type}")
 	  public ResponseEntity<TypeConge> updateConge(@PathVariable("id_type") long id_type, @RequestBody TypeConge typeConge1) {

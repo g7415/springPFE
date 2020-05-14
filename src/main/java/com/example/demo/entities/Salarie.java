@@ -18,6 +18,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -37,7 +38,7 @@ public class Salarie  {
 	private Long id;
 	private String nom;
 	private String prenom;
-	private float solde_conge;
+	private double solde_conge;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date date_entree;
 	private String grade;
@@ -45,7 +46,10 @@ public class Salarie  {
 	private String num_tel;
 	private String nom_responsable;
 	private String groupe;
+	@NotBlank
+	   @Size(min = 3, max = 50)
 	private String username;
+	
 	private String password;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -54,8 +58,59 @@ public class Salarie  {
   	inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 	
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Salarie manager;
 	
-	public Salarie(Long id, String nom, String prenom, float solde_conge, Date date_entree, String grade, String mail,
+	public Salarie(String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
+			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
+			Salarie manager, String password, Set<Role> roles, List<Conge> conge) {
+		super();
+		this.nom = nom;
+		this.prenom = prenom;
+		this.solde_conge = solde_conge;
+		this.date_entree = date_entree;
+		this.grade = grade;
+		this.mail = mail;
+		this.num_tel = num_tel;
+		this.nom_responsable = nom_responsable;
+		this.groupe = groupe;
+		this.username = username;
+		this.manager = manager;
+		this.password = password;
+		this.roles = roles;
+		this.conge = conge;
+	}
+
+	public Salarie(Long id, String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
+			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
+			Salarie manager, String password, Set<Role> roles, List<Conge> conge) {
+		super();
+		this.id = id;
+		this.nom = nom;
+		this.prenom = prenom;
+		this.solde_conge = solde_conge;
+		this.date_entree = date_entree;
+		this.grade = grade;
+		this.mail = mail;
+		this.num_tel = num_tel;
+		this.nom_responsable = nom_responsable;
+		this.groupe = groupe;
+		this.username = username;
+		this.manager = manager;
+		this.password = password;
+		this.roles = roles;
+		this.conge = conge;
+	}
+
+	public Salarie getManager() {
+		return manager;
+	}
+
+	public void setManager(Salarie manager) {
+		this.manager = manager;
+	}
+
+	public Salarie(Long id, String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
 			String num_tel, String nom_responsable, String groupe, String username, String password, 
 			Set<Role> roles, List<Conge> conge) {
 		super();
@@ -103,7 +158,7 @@ public class Salarie  {
 		this.conge = conge;
 	}
 	
-	public Salarie(Long id, String nom,  String prenom, float solde_conge,String username,
+	public Salarie(Long id, String nom,  String prenom, double solde_conge,String username,
 			Date date_entree, String grade, String mail, String num_tel, String nom_responsable,
 			String groupe, List<Conge> conge) {
 		super();
@@ -155,11 +210,11 @@ public class Salarie  {
 		this.prenom = prenom;
 	}
 	
-	public float getSolde_conge() {
+	public double getSolde_conge() {
 		return solde_conge;
 	}
 	
-	public void setSolde_conge(float solde_conge) {
+	public void setSolde_conge(double solde_conge) {
 		this.solde_conge = solde_conge;
 	}
 	
@@ -211,7 +266,7 @@ public class Salarie  {
 		this.groupe = groupe;
 	}
 	
-	public Salarie(@NotBlank @Size(min = 3, max = 50) String nom, String prenom, float solde_conge, Date date_entree,
+	public Salarie(@NotBlank @Size(min = 3, max = 50) String nom, String prenom, double solde_conge, Date date_entree,
 			String grade, String mail, String num_tel, String nom_responsable, String groupe,
 			@NotBlank @Size(min = 3, max = 50) String username, @NotBlank @Size(min = 6, max = 100) String password) {
 		super();
@@ -228,7 +283,7 @@ public class Salarie  {
 		this.password = password;
 	}
 	
-	public Salarie(@NotBlank @Size(min = 3, max = 50) String nom, String prenom, float solde_conge, Date date_entree,
+	public Salarie(@NotBlank @Size(min = 3, max = 50) String nom, String prenom, double solde_conge, Date date_entree,
 			String grade, String mail, String num_tel, String nom_responsable, String groupe,
 			@NotBlank @Size(min = 3, max = 50) String username, @NotBlank @Size(min = 6, max = 100) String password,
 			Set<Role> roles) {
@@ -247,7 +302,7 @@ public class Salarie  {
 		this.roles = roles;
 	}
 	
-	public Salarie(Long id, String nom,  String prenom, float solde_conge,String username,
+	public Salarie(Long id, String nom,  String prenom, double solde_conge,String username,
 			Date date_entree, String grade, String mail, String num_tel, String nom_responsable, String groupe,String password
 			) {
 		super();
@@ -278,6 +333,34 @@ public class Salarie  {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	@Override
+	public String toString() {
+		return "{id:" + id + ", nom:" + nom + ", prenom:" + prenom + ", solde_conge:" + solde_conge
+				+ ", date_entree:" + date_entree + ", grade:" + grade + ", mail:" + mail + ", num_tel:" + num_tel
+				+ ", nom_responsable:" + nom_responsable + ", groupe:" + groupe + ", username:" + username
+				+ ", password:" + password + ", roles:" + roles + ", manager:" + manager + ", conge:" + conge + "}";
+	}
+
+	public Salarie(String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
+			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
+			String password, Salarie manager) {
+		super();
+		this.nom = nom;
+		this.prenom = prenom;
+		this.solde_conge = solde_conge;
+		this.date_entree = date_entree;
+		this.grade = grade;
+		this.mail = mail;
+		this.num_tel = num_tel;
+		this.nom_responsable = nom_responsable;
+		this.groupe = groupe;
+		this.username = username;
+		this.password = password;
+		this.manager = manager;
+	}
+	
+	
 
 	
 }

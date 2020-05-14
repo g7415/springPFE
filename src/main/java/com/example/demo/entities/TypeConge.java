@@ -64,23 +64,25 @@ public class TypeConge {
 	}
 
 
-	public TypeConge(Long id_type, String type_Conge, double max_permis, double cong_deja_pris, double cong_restant,
-			List<Conge> conges) {
+	public TypeConge(Long id_type, String type_Conge, double max_permis, double cong_deja_pris, double cong_restant
+			) {
+//		, List<Conge> conges
 		super();
 		this.id_type = id_type;
 		this.type_conge = type_Conge;
 		this.max_permis = max_permis;
 		this.cong_deja_pris = cong_deja_pris;
 		this.cong_restant = cong_restant;
-		this.conges = conges;
+//		this.conges = conges;
 	}
-	public TypeConge(String type_Conge, double max_permis, double cong_deja_pris, double cong_restant, List<Conge> conges) {
+	public TypeConge(String type_Conge, double max_permis, double cong_deja_pris, double cong_restant) {
+//		, List<Conge> conges
 		super();
 		this.type_conge = type_Conge;
 		this.max_permis = max_permis;
 		this.cong_deja_pris = cong_deja_pris;
 		this.cong_restant = cong_restant;
-		this.conges = conges;
+//		this.conges = conges;
 	}
 	public TypeConge() {
 		super();
