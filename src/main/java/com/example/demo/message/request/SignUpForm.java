@@ -4,7 +4,11 @@ package com.example.demo.message.request;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Lob;
 import javax.validation.constraints.*;
+
+import com.example.demo.entities.Salarie;
 
 public class SignUpForm {
    @NotBlank
@@ -27,6 +31,18 @@ public class SignUpForm {
 	private String nom_responsable;
 	private String groupe;
 	private String manager;
+	@Lob
+	@Column(name="pic")
+	private byte[]pic;
+	
+	
+	public byte[] getPic() {
+		return pic;
+	}
+
+	public void setPic(byte[] pic) {
+		this.pic = pic;
+	}
 	
    public String getManager() {
 		return manager;
@@ -137,4 +153,6 @@ public String getPrenom() {
    public void setRoles(Set<String> roles) {
      this.roles = roles;
    }
+
+
 }

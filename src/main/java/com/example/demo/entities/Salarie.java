@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,6 +18,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -61,6 +63,38 @@ public class Salarie  {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Salarie manager;
 	
+	@Lob
+	@Column(name="pic")
+	private byte[]pic;
+	
+	
+	public byte[] getPic() {
+		return pic;
+	}
+
+	public void setPic(byte[] pic) {
+		this.pic = pic;
+	}
+
+	
+	public Salarie(String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
+			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
+			String password, byte[] pic) {
+		super();
+		this.nom = nom;
+		this.prenom = prenom;
+		this.solde_conge = solde_conge;
+		this.date_entree = date_entree;
+		this.grade = grade;
+		this.mail = mail;
+		this.num_tel = num_tel;
+		this.nom_responsable = nom_responsable;
+		this.groupe = groupe;
+		this.username = username;
+		this.password = password;
+		this.pic = pic;
+	}
+
 	public Salarie(String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
 			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
 			Salarie manager, String password, Set<Role> roles, List<Conge> conge) {
@@ -359,6 +393,34 @@ public class Salarie  {
 		this.password = password;
 		this.manager = manager;
 	}
+
+	public Salarie(String nom, String prenom, double solde_conge, Date date_entree, String grade, String mail,
+			String num_tel, String nom_responsable, String groupe, @NotBlank @Size(min = 3, max = 50) String username,
+			String password, Salarie manager, byte[] pic) {
+		super();
+		this.nom = nom;
+		this.prenom = prenom;
+		this.solde_conge = solde_conge;
+		this.date_entree = date_entree;
+		this.grade = grade;
+		this.mail = mail;
+		this.num_tel = num_tel;
+		this.nom_responsable = nom_responsable;
+		this.groupe = groupe;
+		this.username = username;
+		this.password = password;
+		this.manager = manager;
+		this.pic = pic;
+	}
+
+	public Salarie(String nom2, String prenom2, float solde_conge2, Date date_entree2, String grade2, String mail2,
+			String num_tel2, String nom_responsable2, String groupe2, String username2, String encode, String username3,
+			byte[] pic2) {
+		// TODO Auto-generated constructor stub
+	}
+
+	
+
 	
 	
 

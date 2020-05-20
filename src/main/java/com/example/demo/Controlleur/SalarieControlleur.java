@@ -1,5 +1,6 @@
 package com.example.demo.Controlleur;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,20 +11,17 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,21 +29,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Exception.ResourceNotFoundException;
+import com.example.demo.dao.ImageRepository;
 import com.example.demo.dao.RoleRepository;
 import com.example.demo.dao.SalarieRepository;
+import com.example.demo.entities.ImageModel;
 //import com.example.demo.dao.UserRepository;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.RoleName;
 import com.example.demo.entities.Salarie;
-import com.example.demo.entities.TypeConge;
 import com.example.demo.message.request.SignUpForm;
-import com.example.demo.message.response.ResponseMessage;
 import com.example.demo.security.jwt.JwtProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+
 
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -65,20 +62,39 @@ public class SalarieControlleur {
 	  JwtProvider jwtProvider;
 	  @Autowired
 	  SalarieRepository salarieRepository;
+	  @Autowired
+	  ImageRepository imageRepository;
+
 	  
-//		@GetMapping("/manager")
-//		  public  List<Salarie> getAllManager() {
-//		    System.out.println("Get all manager...");
-//		    List<Salarie>salaries= salarieRepository.findAll();
-//			for(Salarie salarie : salaries)
-//			{
-//				Optional<Role> managerRole=roleRepository.findByName(RoleName.ROLE_MANAGER);
-//		    if(salarie.getRoles().equals(managerRole)) 
-//		    	 System.out.println("Get all manager..."+ salarie.getUsername());
-//		    }
-//		    return salaries;
-//		}
-		
+	  /*
+	   * List All Files
+	   */
+	  
+	  @GetMapping("/file/all")
+	  public List<ImageModel> getListFiles() {
+	    return imageRepository.findAll();
+	  }
+	  
+	  @GetMapping("/file/{id}")
+	  public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
+	    Optional<ImageModel> fileOptional = imageRepository.findById(id);
+	    
+	    if(fileOptional.isPresent()) {
+	    	ImageModel file = fileOptional.get();
+	      return ResponseEntity.ok()
+	          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+	          .body(file.getPic());  
+	    }
+	    
+	    return ResponseEntity.status(404).body(null);
+	  }
+	  @PostMapping("/upload")
+	    public ImageModel uplaodImage(@RequestParam("myFile") MultipartFile file) throws IOException {
+	        ImageModel img = new ImageModel( file.getOriginalFilename(),file.getContentType(),file.getBytes() );
+	        final ImageModel savedImage = imageRepository.save(img);
+	        System.out.println("Image saved");
+	        return savedImage;
+	    }
 	  @GetMapping("/manager")
 		public List<Salarie> getAllManager() {
 			
@@ -121,13 +137,6 @@ public class SalarieControlleur {
 		return ResponseEntity.ok().body(Salarie);
 	}
 
-//	 @PreAuthorize(" hasRole('RH')")
-//	@PostMapping("/sal")
-//	public Salarie createSalarie(@Valid @RequestBody Salarie Salarie) {
-//		return salarieRepository.save(Salarie);
-//	}
-	
-
 	 @PostMapping("/sal")
 	 public ResponseEntity<Salarie> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
 		 
@@ -143,7 +152,7 @@ public class SalarieControlleur {
 	   // Creating user's account
 	   Salarie salarie = new Salarie(signUpRequest.getNom(),signUpRequest.getPrenom(),signUpRequest.getSolde_conge(),  signUpRequest.getDate_entree(),
 	   signUpRequest.getGrade(),  signUpRequest.getMail(),  signUpRequest.getNum_tel(),  signUpRequest.getNom_responsable(),  signUpRequest.getGroupe(),
-	   signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()));
+	   signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()),signUpRequest.getPic());
 	  // System.out.println(signUpRequest.getRole());
 
 	   Set<String> strRoles = signUpRequest.getRoles();
@@ -186,18 +195,10 @@ public class SalarieControlleur {
        } 
        }
 	   
-//	   EmailSender emailSend = new EmailSender();
-//	   try {
-//		emailSend.sendMail(salarie);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			System.out.print("erreur");
-//		}
-	
 	   return new ResponseEntity<>(salarieRepository.save(salarie), HttpStatus.OK);
 	 }
 	
+	 
 	@PreAuthorize("hasRole('RH')")
 	@DeleteMapping("/sal/{id}")
 	public Map<String, Boolean> deleteSalarie(@PathVariable(value = "id") Long SalarieId)
@@ -256,7 +257,7 @@ public class SalarieControlleur {
 //	    	salarie.setPassword(encoded);
 	    	salarie.setPassword(encoder.encode(salarie1.getPassword()));
 	    	salarie.setSolde_conge(salarie1.getSolde_conge());
-	    
+	    	salarie.setPic(salarie1.getPic());
 	    	
 	    	 Optional<Salarie> usrData = salarieRepository.findByUsername(salarie1.getManager());
 	    	   	Role managerRole1 = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
@@ -353,6 +354,7 @@ public class SalarieControlleur {
 	    	typeconge.setPrenom(salarie.getPrenom());
 	    	typeconge.setMail(salarie.getMail());
 	    	typeconge.setNum_tel(salarie.getNum_tel());
+	    	typeconge.setPic(salarie.getPic());
 
 	      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
 	    } else {
