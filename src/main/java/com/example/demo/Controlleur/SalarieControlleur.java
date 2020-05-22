@@ -149,10 +149,15 @@ public class SalarieControlleur {
 		   throw new RuntimeException("Fail -> Email is already in use!");  
 	   }
 
+	   Optional<Salarie> managerExist = salarieRepository.findByUsername(signUpRequest.getManager());
+	   Salarie  manager = null;
+	   if(managerExist.isPresent()) {
+	 		manager = managerExist.get();
+ 	   }
 	   // Creating user's account
 	   Salarie salarie = new Salarie(signUpRequest.getNom(),signUpRequest.getPrenom(),signUpRequest.getSolde_conge(),  signUpRequest.getDate_entree(),
 	   signUpRequest.getGrade(),  signUpRequest.getMail(),  signUpRequest.getNum_tel(),  signUpRequest.getNom_responsable(),  signUpRequest.getGroupe(),
-	   signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()),signUpRequest.getPic());
+	   signUpRequest.getUsername(),encoder.encode(signUpRequest.getPassword()),manager,signUpRequest.getPic());
 	  // System.out.println(signUpRequest.getRole());
 
 	   Set<String> strRoles = signUpRequest.getRoles();
@@ -181,19 +186,19 @@ public class SalarieControlleur {
 
 	   salarie.setRoles(roles);
 	   
-	  Optional<Salarie> usrData = salarieRepository.findByUsername(signUpRequest.getManager());
-      Role managerRole = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
-   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
-
-       if(usrData.isPresent() ) {
-
-       	if(usrData.get().getRoles().contains(managerRole) ) {
-    			salarie.setManager(usrData.get());
-       	}
-       else {
-       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
-       } 
-       }
+//	  Optional<Salarie> usrData = salarieRepository.findByUsername(signUpRequest.getManager());
+//      Role managerRole = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
+//   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+//
+//       if(usrData.isPresent() ) {
+//
+//       	if(usrData.get().getRoles().contains(managerRole) ) {
+//    			salarie.setManager(usrData.get());
+//       	}
+//       else {
+//       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
+//       } 
+//       }
 	   
 	   return new ResponseEntity<>(salarieRepository.save(salarie), HttpStatus.OK);
 	 }
@@ -255,22 +260,31 @@ public class SalarieControlleur {
 	    	salarie.setUsername(salarie1.getUsername());
 //	    	String encoded = new BCryptPasswordEncoder().encode(salarie1.getPassword());
 //	    	salarie.setPassword(encoded);
-	    	salarie.setPassword(encoder.encode(salarie1.getPassword()));
+	    	if(!salarie.getPassword().equals(salarie1.getPassword())) {
+	    		salarie.setPassword(encoder.encode(salarie1.getPassword()));
+	    	}
 	    	salarie.setSolde_conge(salarie1.getSolde_conge());
 	    	salarie.setPic(salarie1.getPic());
+
+	 	   Optional<Salarie> manager = salarieRepository.findByUsername(salarie1.getManager());
+	 	   if(manager.isPresent()) {
+	 		  salarie.setManager(manager.get());
+	 	   }else {
+	 		  salarie.setManager(null);
+	 	   }
 	    	
-	    	 Optional<Salarie> usrData = salarieRepository.findByUsername(salarie1.getManager());
-	    	   	Role managerRole1 = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
-	    	   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
-
-	    	       if(usrData.isPresent() ) {
-
-	    	       	if(usrData.get().getRoles().contains(managerRole1) ) {
-	    	    			salarie.setManager(usrData.get());
-	    	       	}
-	    	       }else {
-	    	       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
-	    	       }
+//	    	 Optional<Salarie> usrData = salarieRepository.findByUsername(salarie1.getManager());
+//	    	   	Role managerRole1 = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
+//	    	   			.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
+//
+//	    	       if(usrData.isPresent() ) {
+//
+//	    	       	if(usrData.get().getRoles().contains(managerRole1) ) {
+//	    	    			salarie.setManager(usrData.get());
+//	    	       	}
+//	    	       }else {
+//	    	       	 ResponseEntity.badRequest().body("Thanks to set a correct username for manager!");
+//	    	       }
 	    	
 	    	 Set<String> strRoles = salarie1.getRoles();
 	  	   Set<Role> roles = new HashSet<>();

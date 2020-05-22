@@ -1,5 +1,7 @@
 package com.example.demo.Controlleur;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,22 @@ public class CongeControlleur {
 	}
 	
 
+//	@PostMapping("/con")
+//	public ResponseEntity<Conge> createConge1(@Valid @RequestBody Conge conge) {
+//		System.out.print(conge);
+//		double nbjourenfctsoldeconge=((conge.getDuree()*1.7)/2.5);
+//		double a = conge.getSalarie().getSolde_conge();
+//	if(nbjourenfctsoldeconge < a)
+//	{ 
+//		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+//    } 
+//	else {
+//	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//	    }
+//	  }  
+		
+
+
 	@DeleteMapping("/con/{num}")
 	public Map<String, Boolean> deleteConge(@PathVariable(value = "num") Long num)
 			throws ResourceNotFoundException {
@@ -127,15 +145,25 @@ public class CongeControlleur {
 	  @PutMapping("/conAccep/{num}")
 	  public ResponseEntity<Conge> accepterDemande(@PathVariable("num") long num,@RequestBody Conge conge1) {
 	    System.out.println("Update Conge with ID = " + num + "...");
-	 
 	    Optional<Conge> CarteInfo = congeRepository.findById(num);
-		 
+	    
+	    double nbjourenfctsoldeconge=((conge1.getDuree()*1.7)/2.5);
+		double soldeCongeSalarie = conge1.getSalarie().getSolde_conge();
 	    if (CarteInfo.isPresent()) {
 	    	Conge conge = CarteInfo.get();
+	    	if(conge1.getTypeconge().getId_type()==5) {
+	    	if ((nbjourenfctsoldeconge < soldeCongeSalarie)) {
+	    	double nvSoldeConge =conge1.getSalarie().getSolde_conge()-nbjourenfctsoldeconge;
+	    	conge.getSalarie().setSolde_conge(nvSoldeConge);
 	    	conge.setStatut("accepter");
-	    	     
+	    	}else {
+	    		conge.setStatut("refuser - solde insuffisant");
+	    	}
+	    	}else {
+	    	conge.setStatut("accepter");}
+	    	
 	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
-	    } else {
+			} else {
 	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
 	    
