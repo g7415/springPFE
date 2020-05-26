@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -185,6 +186,13 @@ public class SalarieControlleur {
 	   });
 
 	   salarie.setRoles(roles);
+//	  	  EmailSender emailSend = new EmailSender();
+//		   try {
+//			emailSend.sendMail(salarie);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	   
 //	  Optional<Salarie> usrData = salarieRepository.findByUsername(signUpRequest.getManager());
 //      Role managerRole = roleRepository.findByName(RoleName.ROLE_MANAGER)	                
@@ -327,21 +335,7 @@ public class SalarieControlleur {
 	  }
 	  
 	  
-	  @PutMapping("/resetPassword/{username}")
-	  public ResponseEntity<Salarie> reinitialiseMdp(@PathVariable("username") String username, @RequestBody Salarie salarie) {
-	    System.out.println("Update Conge with ID = " + username + "...");
-	 
-	    Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
-		 
-	    if (CarteInfo.isPresent()) {
-	    	Salarie typeconge = CarteInfo.get();
-	    	typeconge.setUsername(salarie.getUsername());
-	    	typeconge.setPassword(encoder.encode(salarie.getPassword()));
-	      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
-	    } else {
-	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	    }
-	  }
+
 	  @PutMapping("/changePassword/{username}")
 	  public ResponseEntity<Salarie> updatePassword(@PathVariable("username") String username, @RequestBody Salarie salarie) {
 	    System.out.println("Update Conge with ID = " + username + "...");
@@ -376,4 +370,6 @@ public class SalarieControlleur {
 	    }
 	  }
 	  
+	 
+
 }

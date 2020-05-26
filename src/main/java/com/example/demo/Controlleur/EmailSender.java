@@ -95,8 +95,10 @@ import java.util.Random;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -104,6 +106,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
+import com.example.demo.dao.SalarieRepository;
 import com.example.demo.entities.Conge;
 import com.example.demo.entities.Salarie;
 
@@ -111,6 +114,18 @@ import com.example.demo.entities.Salarie;
 @RequestMapping("/testapp")
 @Controller
 public class EmailSender {
+	@Autowired
+	SalarieRepository salarieRepository;
+
+	 @Autowired
+	 PasswordEncoder encoder;
+	 
+	 @Autowired
+	 SpringTemplateEngine templateEngine;
+
+	 @Autowired
+	 private JavaMailSender sender;
+
 //	 static char[] generatePassword(int length) {
 //			System.out.println("your new password:");
 //		String letters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -127,11 +142,7 @@ public class EmailSender {
 //		}
 //char[] password=generatePassword(8);
 
- @Autowired
- SpringTemplateEngine templateEngine;
-
- @Autowired
- private JavaMailSender sender;
+	
 
  @RequestMapping("/getdetails")
  public @ResponseBody Salarie sendMail(@RequestBody Salarie salarie) throws Exception {
@@ -220,4 +231,6 @@ return conge;
 return conge;
  }
  
+ 
+
 }

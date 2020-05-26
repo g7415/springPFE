@@ -21,6 +21,7 @@ public interface SalarieRepository extends JpaRepository<Salarie,Long> {
 		Boolean existsByMail(String mail);
 		@Query("SELECT s FROM Salarie s JOIN s.roles r WHERE r.name = :role")
 	    List<Salarie> getManagerList(@Param("role") RoleName roleName);
-		
+	
+		Salarie findByMail(String mail);
 
 }
