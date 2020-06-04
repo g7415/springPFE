@@ -26,6 +26,8 @@ public interface CongeRepository extends JpaRepository<Conge,Long> {
 		@Query("SELECT c FROM Conge c JOIN c.salarie.manager s WHERE s.id = :id")
 	    List<Conge> getCongeListByManager(@Param("id") Long id);
 		
+		@Query("SELECT c FROM Conge c  WHERE c.statut = :statut")
+	    List<Conge> getListConByStatut(@Param("statut") String statut);
 }
 //package com.example.demo.dao;
 //

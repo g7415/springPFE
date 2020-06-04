@@ -1,31 +1,43 @@
 package com.example.demo.Controlleur;
 
-import java.sql.Date;
+import java.util.Date;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 
 import com.Exception.ResourceNotFoundException;
 import com.example.demo.dao.CongeRepository;
+import com.example.demo.dao.SalarieRepository;
 import com.example.demo.entities.Conge;
+import com.example.demo.entities.Salarie;
+import com.example.demo.message.response.ResponseMessage;
+import com.google.common.net.HttpHeaders;
 
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -34,7 +46,9 @@ import com.example.demo.entities.Conge;
 public class CongeControlleur {
 	@Autowired
 	private CongeRepository congeRepository;
-
+	@Autowired
+	private SalarieRepository salarieRepository;
+	
 	  @GetMapping("/ConByManager/{id}")
 			public List<Conge> getListConByManager(@PathVariable("id") long id) {
 //				Long id = conge.getSalarie().getManager().getId();
@@ -52,6 +66,13 @@ public class CongeControlleur {
 	    return Conges;
 	  }
 
+	@GetMapping("/conStatut")
+	  public List<Conge> getAllCongesByStatut() {
+	    System.out.println("Get all Conges...");
+		  List<Conge> conges = congeRepository.getListConByStatut("accepter");
+	 	    return conges;
+	  }
+	
 	  @GetMapping("/conid/{id}")
 	  public List<Conge> getCongeByIdSal(@PathVariable(value = "id") Long id)
 				throws ResourceNotFoundException {
@@ -73,19 +94,109 @@ public class CongeControlleur {
 		return ResponseEntity.ok().body(Conge);
 	}
 	
-	@PostMapping("/con")
-	public Conge createConge(@Valid @RequestBody Conge conge) {
-		System.out.print(conge);
-		return congeRepository.save(conge);
+	@PostMapping("/con/{id}")
+	public  ResponseEntity<Object> createConge(@Valid @RequestBody Conge conge,@PathVariable(value = "id") Long id)  {
+		Salarie salarie = salarieRepository.findById(id) .orElseThrow(() -> new EntityNotFoundException());
+			    conge.setSalarie(salarie);	
+			    
+			
+		        
+			    if(conge.getTypeconge().getId_type()==10) {	
+			  		double a = salarie.getSolde_conge();
+			  	if(conge.getDuree() < a)
+			  	{ 
+			  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			    }
+			  	else {
+			  		 Map<String, Object> body = new LinkedHashMap<>();
+				        body.put("message", "Solde insuffisant !");
+			  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+			  	    }
+			  	  }  else if (conge.getTypeconge().getId_type()==19) {
+			  		Date date = new Date();
+			  	    String strDateFormat = "yyyy/MM";
+			  	    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+			  	    String formattedDate= dateFormat.format(date);
+			  	    
+			  	    Date dateConge = conge.getDate_debut();
+			  	    String strDateFormatConge = "yyyy/MM";
+			  	    DateFormat dateFormatConge = new SimpleDateFormat(strDateFormatConge);
+			  	    String formattedDateConge= dateFormat.format(dateConge);
+			  	    if(formattedDate.equals(formattedDateConge))
+			  	    {
+			  	    	 Map<String, Object> body = new LinkedHashMap<>();
+					        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
+				  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+			  	    } else 
+			  	    {
+			  	    	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			  	    }
+			  	   }else if (conge.getTypeconge().getId_type()==14) {
+			  		if(conge.getDuree() <= 3)
+				  	{ 
+				  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+				    }
+				  	else {
+				  		 Map<String, Object> body = new LinkedHashMap<>();
+					        body.put("message", "Vous avez droit a 3 jours de congé seulement !");
+				  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+				  	    }
+			  		  
+			  	  }else if (conge.getTypeconge().getId_type()==15) {
+				  		if(conge.getDuree() <= 2)
+					  	{ 
+					  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+					    }
+					  	else {
+					  		 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "Vous avez droit a 2 jours de congé seulement !");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+					  	    }
+			  	  }else if (conge.getTypeconge().getId_type()==16) {
+				  		if(conge.getDuree() <= 1)
+					  	{ 
+					  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+					    }
+					  	else {
+					  		 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "Vous avez droit a 1 jours de congé seulement !");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+					  	    }
+			  	  }else if (conge.getTypeconge().getId_type()==17) {
+				  		if(conge.getDuree() <= 3)
+					  	{ 
+					  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+					    }
+					  	else {
+					  		 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "Vous avez droit a 3 jours de congé seulement !");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+					  	    }
+			  	  }else if (conge.getTypeconge().getId_type()==18) {
+				  		if(conge.getDuree() <= 2)
+					  	{ 
+					  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+					    }
+					  	else {
+					  		 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "Vous avez droit a 2 jours de congé seulement !");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+					  	    }
+			  	  }
+			    
+			  	else{
+			    return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			    }
+
+
 	}
 	
-
-//	@PostMapping("/con")
+//	@PostMapping("/con1")
 //	public ResponseEntity<Conge> createConge1(@Valid @RequestBody Conge conge) {
 //		System.out.print(conge);
-//		double nbjourenfctsoldeconge=((conge.getDuree()*1.7)/2.5);
+//		if(conge.getTypeconge().getId_type()==10) {	
 //		double a = conge.getSalarie().getSolde_conge();
-//	if(nbjourenfctsoldeconge < a)
+//	if(conge.getDuree() < a)
 //	{ 
 //		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
 //    } 
@@ -93,6 +204,11 @@ public class CongeControlleur {
 //	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //	    }
 //	  }  
+//	else{
+//	System.out.print(conge);
+//	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+//}
+//		} 
 		
 
 
@@ -145,30 +261,33 @@ public class CongeControlleur {
 	  @PutMapping("/conAccep/{num}")
 	  public ResponseEntity<Conge> accepterDemande(@PathVariable("num") long num,@RequestBody Conge conge1) {
 	    System.out.println("Update Conge with ID = " + num + "...");
-	    Optional<Conge> CarteInfo = congeRepository.findById(num);
-	    
-	    double nbjourenfctsoldeconge=((conge1.getDuree()*1.7)/2.5);
-		double soldeCongeSalarie = conge1.getSalarie().getSolde_conge();
-	    if (CarteInfo.isPresent()) {
-	    	Conge conge = CarteInfo.get();
-	    	if(conge1.getTypeconge().getId_type()==5) {
-	    	if ((nbjourenfctsoldeconge < soldeCongeSalarie)) {
-	    	double nvSoldeConge =conge1.getSalarie().getSolde_conge()-nbjourenfctsoldeconge;
-	    	conge.getSalarie().setSolde_conge(nvSoldeConge);
+	    Optional<Conge> c = congeRepository.findById(num);
+	   
+//	    double nbjourenfctsoldeconge=((conge1.getDuree()*1.7)/1.5);
+//		double soldeCongeSalarie = conge1.getSalarie().getSolde_conge();
+//	    if (CarteInfo.isPresent()) {
+//	    	Conge conge = CarteInfo.get();
+//	    	if(conge1.getTypeconge().getId_type()==10) {
+//	    	if ((nbjourenfctsoldeconge < soldeCongeSalarie)) {
+//	    	double nvSoldeConge =conge1.getSalarie().getSolde_conge()-nbjourenfctsoldeconge;
+//	    	conge.getSalarie().setSolde_conge(nvSoldeConge);
+//	    	conge.setStatut("accepter");
+//	    	}else {
+//	    		conge.setStatut("refuser - solde insuffisant");
+//	    	}
+//	    	}else {
+//	    	conge.setStatut("accepter");}
+		 
+	    if (c.isPresent()) {
+	    	Conge conge = c.get();
+	    	 if(conge1.getTypeconge().getId_type()==10) {
+		    	 double nbjour=conge1.getDuree();
+		    	double soldeCongeSalarie = conge1.getSalarie().getSolde_conge();
+		    	double nvSoldeConge =soldeCongeSalarie-nbjour;
+		    	conge.getSalarie().setSolde_conge(nvSoldeConge);
+		    	conge.setStatut("accepter");
+		    }
 	    	conge.setStatut("accepter");
-	    	}else {
-	    		conge.setStatut("refuser - solde insuffisant");
-	    	}
-	    	}else {
-	    	conge.setStatut("accepter");}
-//		  	  EmailSender emailSend = new EmailSender();
-//			   try {
-//				emailSend.sendMail2(conge1);
-//				} catch (Exception e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//		  	 
-//				}
 	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
 			} else {
 	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);

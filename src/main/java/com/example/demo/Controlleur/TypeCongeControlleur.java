@@ -94,8 +94,8 @@ public class TypeCongeControlleur {
 	    	TypeConge typeconge = CarteInfo.get();
 	    	typeconge.setType_conge(typeConge1.getType_conge());
 	    	typeconge.setMax_permis(typeConge1.getMax_permis());
-	    	typeconge.setCong_deja_pris(typeConge1.getCong_deja_pris());
-	    	typeconge.setCong_restant(typeConge1.getCong_restant());
+//	    	typeconge.setCong_deja_pris(typeConge1.getCong_deja_pris());
+//	    	typeconge.setCong_restant(typeConge1.getCong_restant());
 	    	typeconge.setConges(typeConge1.getConges());
 	    	
 	          

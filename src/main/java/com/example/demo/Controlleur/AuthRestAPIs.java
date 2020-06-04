@@ -135,21 +135,21 @@ public class AuthRestAPIs {
  }
 
 
-// @PutMapping("/resetPassword/{username}")
-// public ResponseEntity<Salarie> reinitialiseMdp(@PathVariable("username") String username,@Valid @RequestBody Salarie signUpRequest) {
-//   System.out.println("Update Conge with ID = " + username + "...");
-//
-//   Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
-//	 
-//   if (CarteInfo.isPresent()) {
-//   	Salarie typeconge = CarteInfo.get();
-//   	typeconge.setPassword(encoder.encode(signUpRequest.getPassword()));
-//  
-//     return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
-//   } else {
-//     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//   }
-// }
+ @PutMapping("/resetPassword/{username}")
+ public ResponseEntity<Salarie> reinitialiseMdp(@PathVariable("username") String username,@Valid @RequestBody Salarie signUpRequest) {
+   System.out.println("Update Conge with ID = " + username + "...");
+
+   Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
+	 
+   if (CarteInfo.isPresent()) {
+   	Salarie typeconge = CarteInfo.get();
+   	typeconge.setPassword(encoder.encode(signUpRequest.getPassword()));
+  
+     return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
+   } else {
+     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+   }
+ }
  
  
  
@@ -176,15 +176,17 @@ public class AuthRestAPIs {
 
  Map<String, Object> model = new HashMap<String, Object>();
  //model.put("username",salarie.getUsername());
- String randomPass = alphaNumericString(10);
+// String randomPass = alphaNumericString(10);
+// model.put("password",randomPass);
 
- model.put("password",randomPass);
-
- 	user.setPassword(encoder.encode(randomPass));
+// 	user.setPassword(encoder.encode(randomPass));
  	salarieRepository.save(user);
  
+// 	 model.put("url","http://localhost:4200/auth/login");
+ 	 model.put("url","http://localhost:4200/reinitialiseMdp");
+  	
 
- System.out.println(randomPass);
+// System.out.println(randomPass);
  Context context = new Context();
  context.setVariables(model);
  String html = templateEngine.process("email-resetPassword", context);

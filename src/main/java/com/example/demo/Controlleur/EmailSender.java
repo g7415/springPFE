@@ -126,24 +126,7 @@ public class EmailSender {
 	 @Autowired
 	 private JavaMailSender sender;
 
-//	 static char[] generatePassword(int length) {
-//			System.out.println("your new password:");
-//		String letters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-//		String numbers="0123456789";
-//		String splChar="!@#$%^&*";
-//		
-//		String pwd= letters +numbers+splChar;
-//		Random r = new Random();
-//		char[] newPass=new char[length];
-//		for (int i=0;i<length;i++) {
-//			newPass[i]=pwd.charAt(r.nextInt(pwd.length()));
-//		}
-//		return newPass;	
-//		}
-//char[] password=generatePassword(8);
-
 	
-
  @RequestMapping("/getdetails")
  public @ResponseBody Salarie sendMail(@RequestBody Salarie salarie) throws Exception {
 	
@@ -156,6 +139,8 @@ public class EmailSender {
      Map<String, Object> model = new HashMap<String, Object>();
      model.put("username",salarie.getUsername());
      model.put("password",salarie.getPassword());
+ 	 model.put("url","http://localhost:4200/auth/login");
+
 //     model.put("password",password);
 
 //     System.out.println(generatePassword(8));
