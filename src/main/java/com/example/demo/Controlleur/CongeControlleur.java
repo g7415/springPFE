@@ -191,6 +191,162 @@ public class CongeControlleur {
 
 	}
 	
+	  @PutMapping("/con/{num}/{id}")
+	  public ResponseEntity<Object> updateConge(@PathVariable("num") long num, @RequestBody Conge conge1,@PathVariable(value = "id") Long id) {
+	    System.out.println("Update Conge with ID = " + num + "...");
+	    Salarie salarie = salarieRepository.findById(id) .orElseThrow(() -> new EntityNotFoundException());
+	    conge1.setSalarie(salarie);	
+	    Optional<Conge> CarteInfo = congeRepository.findById(num);
+		 
+	    if (CarteInfo.isPresent()) {
+	    	  if(conge1.getTypeconge().getId_type()==10) {	
+			  		double a = salarie.getSolde_conge();
+			  	if(conge1.getDuree() < a)
+			  	{ Conge conge = CarteInfo.get();
+		    	conge.setDate_debut(conge1.getDate_debut());
+		    	conge.setDate_fin(conge1.getDate_fin());
+		    	conge.setDuree(conge1.getDuree());
+		    	conge.setStatut(conge1.getStatut());
+		    	conge.setSalarie(conge1.getSalarie());
+		    	conge.setTypeconge(conge1.getTypeconge());
+			  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			    }
+			  	else {
+			  		 Map<String, Object> body = new LinkedHashMap<>();
+				        body.put("message", "Solde insuffisant !");
+			  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+			  	    }
+			  	  }else if (conge1.getTypeconge().getId_type()==19) {
+				  		Date date = new Date();
+				  	    String strDateFormat = "yyyy/MM";
+				  	    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+				  	    String formattedDate= dateFormat.format(date);
+				  	    
+				  	    Date dateConge = conge1.getDate_debut();
+				  	    String strDateFormatConge = "yyyy/MM";
+				  	    DateFormat dateFormatConge = new SimpleDateFormat(strDateFormatConge);
+				  	    String formattedDateConge= dateFormat.format(dateConge);
+				  	    if(formattedDate.equals(formattedDateConge))
+				  	    {
+				  	    	 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+				  	    } else 
+				  	    {
+				  	    	 Conge conge = CarteInfo.get();
+						    	conge.setDate_debut(conge1.getDate_debut());
+						    	conge.setDate_fin(conge1.getDate_fin());
+						    	conge.setDuree(conge1.getDuree());
+						    	conge.setStatut(conge1.getStatut());
+						    	conge.setSalarie(conge1.getSalarie());
+						    	conge.setTypeconge(conge1.getTypeconge());
+				  	    	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+				  	    }
+				  	   }else if (conge1.getTypeconge().getId_type()==14) {
+					  		if(conge1.getDuree() <= 3)
+						  	{ 
+					  			Conge conge = CarteInfo.get();
+						    	conge.setDate_debut(conge1.getDate_debut());
+						    	conge.setDate_fin(conge1.getDate_fin());
+						    	conge.setDuree(conge1.getDuree());
+						    	conge.setStatut(conge1.getStatut());
+						    	conge.setSalarie(conge1.getSalarie());
+						    	conge.setTypeconge(conge1.getTypeconge());
+						  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+						    }
+						  	else {
+						  		 Map<String, Object> body = new LinkedHashMap<>();
+							        body.put("message", "Vous avez droit a 3 jours de congé seulement !");
+						  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+						  	    }
+					  		  
+					  	  }else if (conge1.getTypeconge().getId_type()==15) {
+						  		if(conge1.getDuree() <= 2)
+							  	{ 
+						  			Conge conge = CarteInfo.get();
+							    	conge.setDate_debut(conge1.getDate_debut());
+							    	conge.setDate_fin(conge1.getDate_fin());
+							    	conge.setDuree(conge1.getDuree());
+							    	conge.setStatut(conge1.getStatut());
+							    	conge.setSalarie(conge1.getSalarie());
+							    	conge.setTypeconge(conge1.getTypeconge());
+							  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+							    }
+							  	else {
+							  		 Map<String, Object> body = new LinkedHashMap<>();
+								        body.put("message", "Vous avez droit a 2 jours de congé seulement !");
+							  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+							  	    }
+					  	  }else if (conge1.getTypeconge().getId_type()==16) {
+						  		if(conge1.getDuree() <= 1)
+							  	{   
+						  			Conge conge = CarteInfo.get();
+							    	conge.setDate_debut(conge1.getDate_debut());
+							    	conge.setDate_fin(conge1.getDate_fin());
+							    	conge.setDuree(conge1.getDuree());
+							    	conge.setStatut(conge1.getStatut());
+							    	conge.setSalarie(conge1.getSalarie());
+							    	conge.setTypeconge(conge1.getTypeconge());
+							  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+							    }
+							  	else {
+							  		 Map<String, Object> body = new LinkedHashMap<>();
+								        body.put("message", "Vous avez droit a 1 jours de congé seulement !");
+							  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+							  	    }
+					  	  }else if (conge1.getTypeconge().getId_type()==17) {
+						  		if(conge1.getDuree() <= 3)
+							  	{ 
+						  			Conge conge = CarteInfo.get();
+							    	conge.setDate_debut(conge1.getDate_debut());
+							    	conge.setDate_fin(conge1.getDate_fin());
+							    	conge.setDuree(conge1.getDuree());
+							    	conge.setStatut(conge1.getStatut());
+							    	conge.setSalarie(conge1.getSalarie());
+							    	conge.setTypeconge(conge1.getTypeconge());
+							  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+							    }
+							  	else {
+							  		 Map<String, Object> body = new LinkedHashMap<>();
+								        body.put("message", "Vous avez droit a 3 jours de congé seulement !");
+							  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+							  	    }
+					  	  }else if (conge1.getTypeconge().getId_type()==18) {
+						  		if(conge1.getDuree() <= 2)
+							  	{ 
+						  			Conge conge = CarteInfo.get();
+							    	conge.setDate_debut(conge1.getDate_debut());
+							    	conge.setDate_fin(conge1.getDate_fin());
+							    	conge.setDuree(conge1.getDuree());
+							    	conge.setStatut(conge1.getStatut());
+							    	conge.setSalarie(conge1.getSalarie());
+							    	conge.setTypeconge(conge1.getTypeconge());
+							  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+							    }
+							  	else {
+							  		 Map<String, Object> body = new LinkedHashMap<>();
+								        body.put("message", "Vous avez droit a 2 jours de congé seulement !");
+							  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+							  	    }
+					  	  }
+	    	  
+	    	else {
+	    	Conge conge = CarteInfo.get();
+	    	conge.setDate_debut(conge1.getDate_debut());
+	    	conge.setDate_fin(conge1.getDate_fin());
+	    	conge.setDuree(conge1.getDuree());
+	    	conge.setStatut(conge1.getStatut());
+	    	conge.setSalarie(conge1.getSalarie());
+	    	conge.setTypeconge(conge1.getTypeconge());
+	               
+	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			  	  }
+	    	  }
+	    else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }
+	
 //	@PostMapping("/con1")
 //	public ResponseEntity<Conge> createConge1(@Valid @RequestBody Conge conge) {
 //		System.out.print(conge);
@@ -236,26 +392,26 @@ public class CongeControlleur {
 	 
 	
 
-	  @PutMapping("/con/{num}")
-	  public ResponseEntity<Conge> updateConge(@PathVariable("num") long num, @RequestBody Conge conge1) {
-	    System.out.println("Update Conge with ID = " + num + "...");
-	 
-	    Optional<Conge> CarteInfo = congeRepository.findById(num);
-		 
-	    if (CarteInfo.isPresent()) {
-	    	Conge conge = CarteInfo.get();
-	    	conge.setDate_debut(conge1.getDate_debut());
-	    	conge.setDate_fin(conge1.getDate_fin());
-	    	conge.setDuree(conge1.getDuree());
-	    	conge.setStatut(conge1.getStatut());
-	    	conge.setSalarie(conge1.getSalarie());
-	    	conge.setTypeconge(conge1.getTypeconge());
-	               
-	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
-	    } else {
-	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	    }
-	  }
+//	  @PutMapping("/con/{num}")
+//	  public ResponseEntity<Conge> updateConge(@PathVariable("num") long num, @RequestBody Conge conge1) {
+//	    System.out.println("Update Conge with ID = " + num + "...");
+//	 
+//	    Optional<Conge> CarteInfo = congeRepository.findById(num);
+//		 
+//	    if (CarteInfo.isPresent()) {
+//	    	Conge conge = CarteInfo.get();
+//	    	conge.setDate_debut(conge1.getDate_debut());
+//	    	conge.setDate_fin(conge1.getDate_fin());
+//	    	conge.setDuree(conge1.getDuree());
+//	    	conge.setStatut(conge1.getStatut());
+//	    	conge.setSalarie(conge1.getSalarie());
+//	    	conge.setTypeconge(conge1.getTypeconge());
+//	               
+//	      return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+//	    } else {
+//	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//	    }
+//	  }
 	  
 	  
 	  @PutMapping("/conAccep/{num}")
