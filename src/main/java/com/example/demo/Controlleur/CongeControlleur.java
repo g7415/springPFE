@@ -1,6 +1,7 @@
 package com.example.demo.Controlleur;
 
 import java.util.Date;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import com.example.demo.dao.CongeRepository;
 import com.example.demo.dao.SalarieRepository;
 import com.example.demo.entities.Conge;
 import com.example.demo.entities.Salarie;
+import com.example.demo.entities.TypeConge;
 import com.example.demo.message.response.ResponseMessage;
 import com.google.common.net.HttpHeaders;
 
@@ -103,7 +105,7 @@ public class CongeControlleur {
 		        
 			    if(conge.getTypeconge().getId_type()==10) {	
 			  		double a = salarie.getSolde_conge();
-			  	if(conge.getDuree() < a)
+			  	if(conge.getDuree() <= a)
 			  	{ 
 			  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
 			    }
@@ -468,6 +470,28 @@ public class CongeControlleur {
 	    }
 	  }   
 	  
+	
+	   
 	  
+	  @GetMapping("/SumCongePris/{username}")
+	  public ResponseEntity<Object>  getSumCongePris(@PathVariable(value = "username") String username)
+				throws ResourceNotFoundException {
+		  List <Object> conges = congeRepository.getSumCongePris(username);
+		  
+			  Map<String, Object> body = new LinkedHashMap<>();
+		        body.put("resultat", conges);
+		  
+		  return new ResponseEntity<Object>(body,HttpStatus.OK);
+
+	        }
+			
+
+	  
+//	  @GetMapping("/SumCongeRestant/{username}")
+//	  public List<Object[]> getSumCongeRestant(@PathVariable(value = "username") String username)
+//				throws ResourceNotFoundException {
+//		  List<Object[]> conges = congeRepository.getSumCongeRestant(username);
+//		  return conges;
+//			}
 	  
 }
