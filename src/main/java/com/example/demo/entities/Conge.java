@@ -11,15 +11,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 public class Conge {
 	@Id 
 	@GeneratedValue
 	private Long num;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date date_debut;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date date_fin;
 	private Long duree;
 	private String statut;

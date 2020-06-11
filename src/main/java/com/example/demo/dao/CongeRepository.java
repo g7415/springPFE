@@ -34,11 +34,25 @@ public interface CongeRepository extends JpaRepository<Conge,Long> {
 		@Query("SELECT c FROM Conge c  WHERE c.statut = :statut")
 	    List<Conge> getListConByStatut(@Param("statut") String statut);
 		
-		
-		@Query("SELECT  tc.type_conge,tc.max_permis , sum(c.duree) AS congespris, tc.max_permis-sum(c.duree)as congerestant FROM Conge c JOIN c.salarie s JOIN c.typeconge tc"
-				+ " WHERE c.statut = 'accepter' and s.username = :username"
-				+ " group by s,tc")
+		 
+		@Query("SELECT  tc.type_conge, tc.max_permis , "
+				+ " (SELECT sum(c.duree) FROM  Conge c  JOIN c.salarie s"
+				+ " WHERE c.statut = 'accepter' and s.username = :username and c.typeconge= tc.id_type"
+				+ " group by tc.id_type) AS congespris ,"
+				+ " (SELECT tc.max_permis-sum(c.duree) FROM  Conge c  JOIN c.salarie s" 
+				+" WHERE c.statut = 'accepter' and s.username = :username and c.typeconge= tc.id_type "  
+				+" group by tc.id_type) AS congerestant"
+				+ " from TypeConge tc")
 	    List<Object> getSumCongePris(@Param("username") String username);
 		
+	
+		@Query("SELECT COUNT(c) FROM Conge c  WHERE c.statut = 'accepter'")
+		Long getStatistiqueConAcc();
+		
+		@Query("SELECT COUNT(c) FROM Conge c  WHERE c.statut = 'refuser'")
+		Long getStatistiqueConRefu();
+		
+		@Query("SELECT COUNT(c) FROM Conge c  WHERE c.statut = 'en attente'")
+		Long getStatistiqueConEnAttente();
 		
 }

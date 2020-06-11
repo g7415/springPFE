@@ -1,10 +1,17 @@
 package com.example.demo.Controlleur;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -102,7 +109,31 @@ public class SalarieControlleur {
 			List<Salarie> salaries =salarieRepository.getManagerList(RoleName.ROLE_MANAGER);
 			return salaries;
 		}
+	  @GetMapping("/NbMang")
+			public Long getStatistiqueNbMan() {
+				Long NbMang =salarieRepository.getStatistiqueNbMan(RoleName.ROLE_MANAGER);
+				return NbMang;
+			}
+	  @GetMapping("/NbRH")
+		public Long getStatistiqueNbRH() {
+			Long NbRH =salarieRepository.getStatistiqueNbRH(RoleName.ROLE_RH);
+			return NbRH;
+		}
+	  @GetMapping("/NbEmp")
+		public Long getStatistiqueNbEmp() {
+			Long NbEmp =salarieRepository.getStatistiqueNbEmp(RoleName.ROLE_USER);
+			return NbEmp;
+		}
 	  
+	  @GetMapping("/dateEntree/{date_entree}")
+			public List<?> getStatistique1(@PathVariable(value = "date_entree") String date_entree) throws ParseException {
+		  SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+		  Date date = formatter.parse(date_entree);
+		  String formattedDate = formatter.format(date);
+		  List<?> salaries =salarieRepository.getStatistique(formattedDate);
+				return salaries;
+			}
+	
 	  
 	@GetMapping("/sal")
 	  public List<Salarie> getAllSalaries() {

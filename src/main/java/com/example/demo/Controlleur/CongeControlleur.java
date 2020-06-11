@@ -67,7 +67,22 @@ public class CongeControlleur {
 	 
 	    return Conges;
 	  }
-
+	@GetMapping("/statAccepter")
+	  public  Long getStatistiqueNbConAcc() {
+		Long nbConAcc =congeRepository.getStatistiqueConAcc();
+			return nbConAcc;
+		}
+	@GetMapping("/statRefuser")
+	  public  Long getStatistiqueNbConRefu() {
+		Long nbConRefu =congeRepository.getStatistiqueConRefu();
+			return nbConRefu;
+		}
+	
+	@GetMapping("/statEnAttente")
+	  public  Long getStatistiqueNbConEnAttente() {
+		Long nbConEnAtt =congeRepository.getStatistiqueConEnAttente();
+			return nbConEnAtt;
+		}
 	@GetMapping("/conStatut")
 	  public List<Conge> getAllCongesByStatut() {
 	    System.out.println("Get all Conges...");
