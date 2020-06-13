@@ -39,4 +39,6 @@ public interface SalarieRepository extends JpaRepository<Salarie,Long> {
 		@Query("SELECT COUNT(s) FROM Salarie s JOIN s.roles r WHERE r.name = :role  ")
 	    Long getStatistiqueNbEmp(@Param("role") RoleName roleName);
 		
+		@Query("SELECT s FROM Salarie s JOIN s.manager m WHERE m.id = :id")
+	    List<Salarie> getSalarieListByManager(@Param("id") Long id);
 }

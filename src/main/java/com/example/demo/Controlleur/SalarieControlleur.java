@@ -103,6 +103,15 @@ public class SalarieControlleur {
 	        System.out.println("Image saved");
 	        return savedImage;
 	    }
+	  
+	  
+	  
+	  @GetMapping("/salByMang/{id}")
+			public List<Salarie> getSalarieListByManager(@PathVariable(value = "id") Long SalarieId) {
+				
+				List<Salarie> salaries =salarieRepository.getSalarieListByManager(SalarieId);
+				return salaries;
+			}
 	  @GetMapping("/manager")
 		public List<Salarie> getAllManager() {
 			
@@ -249,7 +258,13 @@ public class SalarieControlleur {
 			throws ResourceNotFoundException {
 		Salarie Salarie = salarieRepository.findById(SalarieId)
 				.orElseThrow(() -> new ResourceNotFoundException("Salarie not found  id :: " + SalarieId));
-
+	List<Salarie>salaries =salarieRepository.findAll();
+      for(Salarie salarie1 :salaries) {
+    	  if(salarie1.getManager()==Salarie)
+    	  {
+    		  salarie1.setManager(null);
+    	  }
+      } 
 		salarieRepository.delete(Salarie);
 		Map<String, Boolean> response = new HashMap<>();
 		response.put("deleted", Boolean.TRUE);
