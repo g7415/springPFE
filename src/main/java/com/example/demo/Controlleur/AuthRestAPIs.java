@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -136,7 +137,7 @@ public class AuthRestAPIs {
 
 
  @PutMapping("/resetPassword/{username}")
- public ResponseEntity<Salarie> reinitialiseMdp(@PathVariable("username") String username,@Valid @RequestBody Salarie signUpRequest) {
+ public ResponseEntity<Object> reinitialiseMdp(@PathVariable("username") String username,@Valid @RequestBody Salarie signUpRequest) {
    System.out.println("Update Conge with ID = " + username + "...");
 
    Optional<Salarie> CarteInfo = salarieRepository.findByUsername(username);
@@ -146,9 +147,12 @@ public class AuthRestAPIs {
    	typeconge.setPassword(encoder.encode(signUpRequest.getPassword()));
   
      return new ResponseEntity<>(salarieRepository.save(typeconge), HttpStatus.OK);
-   } else {
-     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-   }
+   } 
+	else {
+ 		 Map<String, Object> body = new LinkedHashMap<>();
+	        body.put("message", "Le nom d'utilisateur que vous avez saisie n'existe pas");
+ 	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+ 	    }
  }
  
  

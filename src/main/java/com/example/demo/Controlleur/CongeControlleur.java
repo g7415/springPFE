@@ -3,6 +3,7 @@ package com.example.demo.Controlleur;
 import java.util.Date;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,6 +97,24 @@ public class CongeControlleur {
 		  List<Conge> conges = congeRepository.getCongeByIdSal(id);
 		  return conges;
 			}
+	  
+	  @GetMapping("/conAccepid1/{id}/{date_debut}")
+	  public Conge getCongeAccepterByIdSal12(@PathVariable(value = "id") Long id,@PathVariable(value = "date_debut") String date_debut)
+			  throws ParseException {
+		  SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+		  Date date = formatter.parse(date_debut);
+		  String formattedDate = formatter.format(date);
+		  Conge conges =congeRepository.getCongeAccepterByIdSal1(id,formattedDate);
+				return conges;
+			}
+	  
+	  @GetMapping("/conAccepid/{id}")
+	  public List<Conge> getCongeAccepterByIdSal(@PathVariable(value = "id") Long id)
+				throws ResourceNotFoundException {
+		  List<Conge> conges = congeRepository.getCongeAccepterByIdSal(id);
+		  return conges;
+			}
+	  
 	  @GetMapping("/conusername/{username}")
 	  public List<Conge> getCongeByIdSal(@PathVariable(value = "username") String username)
 				throws ResourceNotFoundException {
@@ -111,11 +130,20 @@ public class CongeControlleur {
 		return ResponseEntity.ok().body(Conge);
 	}
 	
+	
+	
+	@GetMapping("/existe/{id_type}")
+	  public  Long Existe(@PathVariable(value = "id_type") Long id_type)
+	{
+		Long nb =congeRepository.Existe(id_type);
+			return nb;
+		}
+	
 	@PostMapping("/con/{id}")
 	public  ResponseEntity<Object> createConge(@Valid @RequestBody Conge conge,@PathVariable(value = "id") Long id)  {
 		Salarie salarie = salarieRepository.findById(id) .orElseThrow(() -> new EntityNotFoundException());
 			    conge.setSalarie(salarie);	
-			    
+			    Long existe= Existe(conge.getTypeconge().getId_type());
 			
 		        
 			    if(conge.getTypeconge().getId_type()==10) {	
@@ -130,25 +158,59 @@ public class CongeControlleur {
 			  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
 			  	    }
 			  	  }  else if (conge.getTypeconge().getId_type()==19) {
-			  		Date date = new Date();
-			  	    String strDateFormat = "yyyy/MM";
-			  	    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
-			  	    String formattedDate= dateFormat.format(date);
-			  	    
-			  	    Date dateConge = conge.getDate_debut();
-			  	    String strDateFormatConge = "yyyy/MM";
-			  	    DateFormat dateFormatConge = new SimpleDateFormat(strDateFormatConge);
-			  	    String formattedDateConge= dateFormat.format(dateConge);
-			  	    if(formattedDate.equals(formattedDateConge))
-			  	    {
-			  	    	 Map<String, Object> body = new LinkedHashMap<>();
-					        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
-				  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
-			  	    } else 
-			  	    {
-			  	    	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
-			  	    }
-			  	   }else if (conge.getTypeconge().getId_type()==14) {
+			  		
+			  		List<Conge> conges= congeRepository.getCongeAccepterByIdSal(id); 
+			  		if(conges.size() == 0)
+			  		{
+			  			return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+			  		}
+			  		for(Conge conge1 : conges){
+					  	  Date dateConge1 = conge1.getDate_debut();
+				  	    String strDateFormatConge1 = "yyyy/MM";
+				  	    DateFormat dateFormatConge1 = new SimpleDateFormat(strDateFormatConge1);
+				  	    String formattedDateConge1= dateFormatConge1.format(dateConge1);
+				  	    
+				  	    Date dateConge = conge.getDate_debut();
+				  	    String strDateFormatConge = "yyyy/MM";
+				  	    DateFormat dateFormatConge = new SimpleDateFormat(strDateFormatConge);
+				  	    String formattedDateConge= dateFormatConge.format(dateConge);
+				  	    
+				  	    if(formattedDateConge1.equals(formattedDateConge)) {
+				  	    	 Map<String, Object> body = new LinkedHashMap<>();
+						        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
+					  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+//						        continue;
+				  	    } else 
+				  	    {
+				  	    	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+				  	    }
+				  	   }
+			  		 Map<String, Object> body = new LinkedHashMap<>();
+				        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
+			  		return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+
+ 
+//			  		Date date = new Date();
+//			  	    String strDateFormat = "yyyy/MM";
+//			  	    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+//			  	    String formattedDate= dateFormat.format(date);
+//			  	    
+//			  	    Date dateConge = conge.getDate_debut();
+//			  	    String strDateFormatConge = "yyyy/MM";
+//			  	    DateFormat dateFormatConge = new SimpleDateFormat(strDateFormatConge);
+//			  	    String formattedDateConge= dateFormatConge.format(dateConge);
+//			  	    if(formattedDate.equals(formattedDateConge))
+//			  	    {
+//			  	    	 Map<String, Object> body = new LinkedHashMap<>();
+//					        body.put("message", "impossible! vous avez deja pris vos 2h ce mois-ci ");
+//				  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+//			  	    } else 
+//			  	    {
+//			  	    	return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
+//			  	    }
+			  		
+			  	   }
+			  	  else if (conge.getTypeconge().getId_type()==14) {
 			  		if(conge.getDuree() <= 3)
 				  	{ 
 				  		return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
@@ -204,6 +266,7 @@ public class CongeControlleur {
 			  	else{
 			    return new ResponseEntity<>(congeRepository.save(conge), HttpStatus.OK);
 			    }
+				
 
 
 	}
@@ -492,7 +555,8 @@ public class CongeControlleur {
 	  public ResponseEntity<Object>  getSumCongePris(@PathVariable(value = "username") String username)
 				throws ResourceNotFoundException {
 		  List <Object> conges = congeRepository.getSumCongePris(username);
-		  
+		
+		
 			  Map<String, Object> body = new LinkedHashMap<>();
 		        body.put("resultat", conges);
 		  

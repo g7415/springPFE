@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -179,15 +180,24 @@ public class SalarieControlleur {
 	}
 
 	 @PostMapping("/sal")
-	 public ResponseEntity<Salarie> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+	 public ResponseEntity<Object> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
 		 
 	
 	   if (salarieRepository.existsByUsername(signUpRequest.getUsername())) {
-			throw new RuntimeException("Fail -> Username is already taken!");
+//			throw new RuntimeException("Fail -> Username is already taken!");
+		   
+		  		 Map<String, Object> body = new LinkedHashMap<>();
+			        body.put("message", "Username is already taken!");
+		  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
+		  	    
+			
 	   }
 
 	   if (salarieRepository.existsByMail(signUpRequest.getMail())) {
-		   throw new RuntimeException("Fail -> Email is already in use!");  
+//		   throw new RuntimeException("Fail -> Email is already in use!");  
+			 Map<String, Object> body = new LinkedHashMap<>();
+		        body.put("message", "Email is already in use!");
+	  	      return new ResponseEntity<>(body,HttpStatus.NOT_FOUND);
 	   }
 
 	   Optional<Salarie> managerExist = salarieRepository.findByUsername(signUpRequest.getManager());

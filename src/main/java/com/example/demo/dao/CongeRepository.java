@@ -3,6 +3,7 @@ package com.example.demo.dao;
 
 
 import java.lang.reflect.Array;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,6 +25,14 @@ public interface CongeRepository extends JpaRepository<Conge,Long> {
 //	    public List<Conge> findByCateg(@Param("id") Long id);
 		@Query("SELECT c FROM Conge c JOIN c.salarie s WHERE s.id = :id")
 	    List<Conge> getCongeByIdSal(@Param("id") Long id);
+		
+		@Query("SELECT c FROM Conge c JOIN c.salarie s JOIN c.typeconge tc WHERE c.statut='accepter' and tc.id_type=19 and s.id = :id")
+	    List<Conge> getCongeAccepterByIdSal(@Param("id") Long id);
+				
+		@Query("SELECT c FROM Conge c JOIN c.salarie s JOIN c.typeconge tc WHERE c.statut='accepter' "
+				+ "and tc.id_type=19 and DATE_FORMAT(c.date_debut, '%Y-%m') = :date_debut and s.id = :id")
+	    Conge getCongeAccepterByIdSal1(@Param("id") Long id,@Param("date_debut") String date_debut);
+		
 		
 		@Query("SELECT c FROM Conge c JOIN c.salarie s WHERE s.username = :username")
 	    List<Conge> getCongeByUsernameSal(@Param("username") String username);
@@ -55,4 +64,6 @@ public interface CongeRepository extends JpaRepository<Conge,Long> {
 		@Query("SELECT COUNT(c) FROM Conge c  WHERE c.statut = 'en attente'")
 		Long getStatistiqueConEnAttente();
 		
+		@Query("SELECT COUNT(c) FROM Conge c JOIN c.typeconge tc WHERE c.statut = 'accepter' and tc.id_type = :id")	
+		Long Existe(@Param("id") Long id);
 }
