@@ -171,7 +171,10 @@ public class AuthRestAPIs {
  public @ResponseBody Salarie sendMailresetPassword(@RequestBody Salarie salarie) throws Exception {
 	 Salarie user = salarieRepository.findByMail(salarie.getMail());
 	    if (user == null) {
+
 	        throw new UserPrincipalNotFoundException(null);
+	       
+ 	  
 	    }
  MimeMessage message = sender.createMimeMessage();
  MimeMessageHelper helper = new MimeMessageHelper(message,
